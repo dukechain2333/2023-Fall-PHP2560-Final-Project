@@ -1,4 +1,4 @@
-source("pooled_testing.R")
+source("simulations/pooled_testing.R")
 
 # This simulation set PROB_POSITIVE as a variable, and compare the optimal pool size with different probability of positive.
 

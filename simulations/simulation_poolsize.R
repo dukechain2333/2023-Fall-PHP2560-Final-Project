@@ -1,6 +1,6 @@
 library(tidyverse)
 library(ggplot2)
-source("pooled_testing.R")
+source("simulations/pooled_testing.R")
 
 # This simulation set PROB_POSITIVE as definite value, and compare the average number of tests with different pool size
 # to find the optimal pool size under certain probability of positive.
