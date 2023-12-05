@@ -5,10 +5,12 @@ source("pooled_testing.R")
 # This simulation set PROB_POSITIVE as definite value, and compare the average number of tests with different pool size
 # to find the optimal pool size under certain probability of positive.
 
+set.seed(123456)
+
 POPULATION_SIZE <- 1000
 PROB_POSITIVE <- 0.02
 MIN_POOL_SIZE <- 2
-MAX_POOL_SIZE <- 30
+MAX_POOL_SIZE <- 40
 NUM_ITERATIONS <- 1000
 
 AvgTests <- c()

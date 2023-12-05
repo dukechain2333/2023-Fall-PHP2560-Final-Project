@@ -1,6 +1,8 @@
 library(tidyverse)
 library(ggplot2)
 
+set.seed(123456)
+
 simulate_pooled_testing <- function(pool_size, prob_positive, num_iterations, population_size) {
   total_tests <- c()
 

@@ -2,20 +2,26 @@ source("pooled_testing.R")
 
 # This simulation set PROB_POSITIVE as a variable, and compare the optimal pool size with different probability of positive.
 
+set.seed(123456)
+
 POPULATION_SIZE <- 1000
-PROB_POSITIVE <- 0.05
 MIN_POOL_SIZE <- 2
 MAX_POOL_SIZE <- 30
 NUM_ITERATIONS <- 100
 
-results <- data.frame(ProbPositive = c(), PoolSize = c())
+results <- data.frame(ProbPositive = c(), PoolSize = c(), MinAvgTests = c())
 
 for (prob_positive in seq(0.01, 1, 0.01)) {
   avg_tests <- c()
   for (pool_size in MIN_POOL_SIZE:MAX_POOL_SIZE) {
     avg_tests <- c(avg_tests, simulate_pooled_testing(pool_size, prob_positive, NUM_ITERATIONS, POPULATION_SIZE))
   }
-  results <- rbind(results, data.frame(ProbPositive = prob_positive, PoolSize = which.min(avg_tests) + 1))
+
+  if (min(avg_tests) >= POPULATION_SIZE) {
+    results <- rbind(results, data.frame(ProbPositive = prob_positive, PoolSize = 1, MinAvgTests = POPULATION_SIZE))
+  } else {
+    results <- rbind(results, data.frame(ProbPositive = prob_positive, PoolSize = which.min(avg_tests) + 1, MinAvgTests = min(avg_tests)))
+  }
 }
 
 print(results)
