@@ -7,7 +7,7 @@ source("simulations/pooled_testing.R")
 
 set.seed(123456)
 
-POPULATION_SIZE <- c(100, 1000, 10000)
+POPULATION_SIZE <- c(100, 500, 1000, 5000, 10000)
 NUM_ITERATIONS <- c(100, 1000, 10000)
 MIN_POOL_SIZE <- 2
 MAX_POOL_SIZE <- 50
