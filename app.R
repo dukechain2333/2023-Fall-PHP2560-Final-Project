@@ -1,6 +1,7 @@
 library(shiny)
 library(ggplot2)
 library(plotly)
+library(DT)
 
 # Define server logic for random distribution app ----
 server <- function(input, output) {
@@ -73,6 +74,24 @@ server <- function(input, output) {
            x = "Probability of Positive",
            y = "Optimal Pool Size")
   })
+
+  processed_data_table <- reactive({
+    population <- as.integer(input$table_pop_options)
+    num_iterations <- as.integer(input$table_iter_options)
+
+
+    file_name <- sprintf("data/population_%d_iterations_%d.csv", population, num_iterations)
+    data_table <- read.csv(file_name)[1:30,]
+
+    # Return the processed data
+    data_table
+  })
+
+  output$table <- renderTable({
+    data <- processed_data_table()
+    colnames(data) <- c("Pool Size", seq(0.01, 1, 0.01))
+    data
+  }, align = 'c')
 }
 
 shinyApp(ui = htmlTemplate("www/index.html"), server)
