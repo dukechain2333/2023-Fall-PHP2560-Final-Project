@@ -1,46 +1,78 @@
 library(shiny)
+library(ggplot2)
+library(plotly)
 
 # Define server logic for random distribution app ----
 server <- function(input, output) {
 
-  # Reactive expression to generate the requested distribution ----
-  # This is called whenever the inputs change. The output functions
-  # defined below then use the value computed from this expression
-  d <- reactive({
-    dist <- switch(input$dist,
-                   norm = rnorm,
-                   unif = runif,
-                   lnorm = rlnorm,
-                   exp = rexp,
-                   rnorm)
+  processed_data_simulation_1 <- reactive({
+    positive_rate <- input$positive_rate
 
-    dist(input$n)
+    if (is.null(positive_rate)) {
+      positive_rate <- 0.02
+    } else {
+      positive_rate <- as.numeric(positive_rate)
+    }
+
+    population <- as.integer(input$pr_definite_pop_options)
+    num_iterations <- as.integer(input$pr_definite_iter_options)
+
+
+    file_name <- sprintf("data/population_%d_iterations_%d.csv", population, num_iterations)
+    data_simulation_1 <- read.csv(file_name)
+    pr <- gsub("\\.", "_", sprintf("prob_%0.2f", positive_rate))
+
+    # Return the processed data
+    data_simulation_1[, c("PoolSize", pr)]
   })
 
-  # Generate a plot of the data ----
-  # Also uses the inputs to build the plot label. Note that the
-  # dependencies on the inputs and the data reactive expression are
-  # both tracked, and all expressions are called in the sequence
-  # implied by the dependency graph.
-  output$plot <- renderPlot({
-    dist <- input$dist
-    n <- input$n
+  output$simulation_1 <- renderPlot({
+    data <- processed_data_simulation_1()
+    pr <- colnames(data)[2]
 
-    hist(d(),
-         main = paste("r", dist, "(", n, ")", sep = ""),
-         col = "#007bc2", border = "white")
+    ggplot(data, aes(x = PoolSize, y = !!sym(pr))) +
+      geom_line() +
+      labs(title = "Pooled Testing Simulation",
+           x = "Pool Size",
+           y = "Average Number of Tests")
   })
 
-  # Generate a summary of the data ----
-  output$summary <- renderPrint({
-    summary(d())
+  processed_data_simulation_2 <- reactive({
+    population <- as.integer(input$pr_var_pop_options)
+    num_iterations <- as.integer(input$pr_var_iter_options)
+
+
+    file_name <- sprintf("data/population_%d_iterations_%d.csv", population, num_iterations)
+    data_simulation_2 <- read.csv(file_name)[1:30,]
+
+    # Return the processed data
+    probs <- seq(0.01, 1, 0.01)
+    min_avg_tests <- numeric(ncol(data_simulation_2) - 1)
+    optimized_n <- numeric(ncol(data_simulation_2) - 1)
+
+    for (i in 2:ncol(data_simulation_2)) {
+      min_row <- which.min(data_simulation_2[[i]])
+      if (data_simulation_2[min_row, i] > population) {
+        min_avg_tests[i - 1] <- population
+        optimized_n[i - 1] <- 1
+      } else {
+        min_avg_tests[i - 1] <- data_simulation_2[min_row, i]
+        optimized_n[i - 1] <- data_simulation_2[min_row, 1]
+      }
+    }
+
+    data.frame(PositiveProb = probs, MinAvgTests = min_avg_tests, OptimizedN = optimized_n)
   })
 
-  # Generate an HTML table view of the head of the data ----
-  output$table <- renderTable({
-    head(data.frame(x = d()))
-  })
+  output$simulation_2 <- renderPlot({
+    data <- processed_data_simulation_2()
 
+    ggplot(data, aes(x = PositiveProb, y = OptimizedN)) +
+      geom_line() +
+      labs(title = "Pooled Testing Simulation",
+           x = "Probability of Positive",
+           y = "Optimal Pool Size")
+  })
 }
 
 shinyApp(ui = htmlTemplate("www/index.html"), server)
