@@ -6,6 +6,8 @@ library(DT)
 # Define server logic for random distribution app ----
 server <- function(input, output) {
 
+  # Simulation 1 server logic
+  # Use reactive to update the parameters when the user changes them
   processed_data_simulation_1 <- reactive({
     positive_rate <- input$positive_rate
 
@@ -38,6 +40,8 @@ server <- function(input, output) {
            y = "Average Number of Tests")
   })
 
+  # Simulation 2 server logic
+  # Use reactive to update the parameters when the user changes them
   processed_data_simulation_2 <- reactive({
     population <- as.integer(input$pr_var_pop_options)
     num_iterations <- as.integer(input$pr_var_iter_options)
@@ -46,11 +50,11 @@ server <- function(input, output) {
     file_name <- sprintf("data/population_%d_iterations_%d.csv", population, num_iterations)
     data_simulation_2 <- read.csv(file_name)[1:30,]
 
-    # Return the processed data
     probs <- seq(0.01, 1, 0.01)
     min_avg_tests <- numeric(ncol(data_simulation_2) - 1)
     optimized_n <- numeric(ncol(data_simulation_2) - 1)
 
+    # if the average number of tests is greater than the population size, then the test numbers are set to the population size
     for (i in 2:ncol(data_simulation_2)) {
       min_row <- which.min(data_simulation_2[[i]])
       if (data_simulation_2[min_row, i] > population) {
@@ -75,6 +79,7 @@ server <- function(input, output) {
            y = "Optimal Pool Size")
   })
 
+  # Data table server logic
   processed_data_table <- reactive({
     population <- as.integer(input$table_pop_options)
     num_iterations <- as.integer(input$table_iter_options)
