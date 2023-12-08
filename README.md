@@ -1,11 +1,21 @@
 # 2023-Fall-PHP2560-Final-Project: Simulation on Pooled Testing
 
-This is the final project for 2023 Fall PHP 2560. It was conducted by William Qian and Dingxuan Zhang.
+This is the final project for 2023 Fall PHP 2560.
+
+**Participants:**
+- William Qian
+- Dingxuan Zhang
 
 ## Project Description
 Pooled testing is a technique used to increase the efficiency of testing for various infectious diseases, including COVID-19.
 It involves combining samples from multiple individuals into a single pool and testing the pool as a whole. This approach 
 can significantly reduce the number of tests needed, particularly when the prevalence of the disease is low.
+
+Here's how pooled testing works:
+1. Sample Collection: Samples are collected from individuals using standard methods, such as nasal swabs or blood draws.
+2. Pooling: Equal volumes of individual samples are combined into a single pool. The number of samples included in a pool can vary depending on the test and the expected prevalence of the disease.
+3. Testing: The pooled sample is then tested using a standard diagnostic test.
+4. Interpretation: If the pooled sample tests positive, it indicates that one or more individuals in the pool are infected. This triggers individual testing of all members of the pool to identify the positive individuals.
 
 In this project, we will simulate the process of pooled testing and find the optimal pool size for different prevalence rates, 
 and demonstrate the result through a Shiny app. Different plots, tables and user inputs will be available in the app.
@@ -22,14 +32,83 @@ The app is divided into three parts: `Introduction`, `Simulation` and `Conclusio
 - `Introduction`: This part is the introduction of pooled testing, which takes the first page of the app. It includes 
 the basic idea of pooled testing, the advantages of using pooled testing. And we also include the math behind pooled testing.
 - `Simulation`: This part is the main part of the app. It includes the simulation of pooled testing, the plots and tables.
-  - **Optimized Pool Size over Positive Rate**: This simulation allows users to input the positive rate, population size 
+  - **Positive Rate as Definite**: This simulation allows users to input the positive rate, population size 
   and number of iterations as parameters. The app will then simulate the pooled testing process and find the optimized pool size under the given parameters,
   and plot the result in a line chart.
-  - **Positive Rate as Definite**: In order to see the trend of the optimized pool size under different positive rate, we
+  - **Optimized Pool Size over Positive Rate**: In order to see the trend of the optimized pool size under different positive rate, we
     set the positive rate as a definite value. In this simulation, users can input the population size and number of iterations as parameters.
   - **Data Demonstration**: This part allows user to directly check the data we obtained from the simulation. Users can 
   input the population size and number of iterations as parameters.
 - `Conclusion`: This part is the conclusion of the app. It includes the summary of the findings we obtained from the simulation.
 
 ## How we design the simulation?
+The simulation is based on the following **assumptions**:
+- The distribution of the positive rate is binomial distribution.
+- The test is 100% accurate, meaning that there is no false positive or false negative.
+- The test is independent, meaning that the result of one test will not affect the result of another test.
+
+### Single Simulation Process
+Since the simulation of `Optimized Pool Size over Positive Rate` and `Positive Rate as Definite` mainly differ in input parameters, we can 
+extract the single simulation process as a function. The function is defined as follows:
+```r
+simulate_pooled_testing <- function(pool_size, prob_positive, num_iterations, population_size) {
+  #' Simulate pooled testing
+  #'
+  #' @param pool_size The number of samples in each pool
+  #' @param prob_positive The probability of a sample being positive
+  #' @param num_iterations The number of iterations to run the simulation
+  #' @param population_size The size of the population
+  #' @return The average number of tests required to test the population
+
+  total_tests <- c()
+
+  for (i in 1:num_iterations) {
+    # generate a population of size population_size with prob_positive probability of being positive
+    population <- rbinom(population_size, 1, prob_positive)
+    # take samples of size pool_size from the population
+    samples <- replicate(as.integer(population_size / pool_size), sample(population, pool_size, replace = TRUE))
+    # test each sample
+    tests <- apply(samples, 2, function(x) sum(x) > 0)
+
+    if ("FALSE" %in% tests) {
+      negative_tests <- as.numeric(table(tests)["FALSE"])
+    }else {
+      negative_tests <- 0
+    }
+
+    if ("TRUE" %in% tests) {
+      positive_tests <- as.numeric(table(tests)["TRUE"])
+    }else {
+      positive_tests <- 0
+    }
+    
+    # calculate the total number of tests
+    total_tests <- c(total_tests, negative_tests + positive_tests * (pool_size + 1))
+  }
+
+  return(mean(total_tests))
+}
+```
+In this function, we first generate a population of size `population_size` with `prob_positive` probability of being positive.
+Then we take samples of size `pool_size` from the population. After that, we test each sample. If there is at least one positive sample in the group,
+we will test each individual in the group. Otherwise, we will not test each individual in the group. Finally, we calculate the total number of tests. We 
+repeat this process for `num_iterations` times and take the average of the total number of tests and return it.
+
+### Positive Rate as Definite
+In this simulation, we set the positive rate as a definite value. For each of the pool size ranging from 2 to 50, we run the simulation for `num_iterations` times and
+calculate the average number of tests required to test the population. Then we plot the result in a line chart. From the plot, we should find a minimum point, which is the optimized pool size.
+
+An example is shown below:
+![example 1](resources/example1.png)
+
+### Optimized Pool Size over Positive Rate
+In the second simulation, we want to see the trend of the optimized pool size under different positive rate. 
+To do that, we find the optimized pool size under each of the positive rate, and plot them. We can see a trend from the plot.
+
+An example is shown below:
+![example 2](resources/example2.png)
+
+
+
+
 
