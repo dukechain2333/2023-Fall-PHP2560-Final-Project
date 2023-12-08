@@ -108,7 +108,18 @@ To do that, we find the optimized pool size under each of the positive rate, and
 An example is shown below:
 ![example 2](resources/example2.png)
 
+## How we design the Shiny App?
 
+Our shiny app has two parts: `UI` and `Server`. In the `UI` part, we mainly use `HTML` and `Tailwind CSS` to design the user interface.
+In the `Server` part, we mainly use basic `R` to implement the functions and logic of the app.
 
+### UI
+Instead of using the traditional `Bootstrap` design, we prefer a more modern and beautiful design. Therefore, we choose `Tailwind CSS` as our CSS framework.
+In the `www` folder, we have a `index.html` file, which is the template of the app. In the `app.R` file, we use `includeHTML` function to include the template.
+
+### Server
+We offered our user server options to see different results under different parameters. However, some of the parameters will 
+lead to great amount of time to run the simulation. Therefore, we pre run all the possible simulations and save the results in the `data` folder. 
+When user choose a certain parameter, we will read the corresponding data and show the result to the user. 
 
 
