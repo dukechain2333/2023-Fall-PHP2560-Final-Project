@@ -33,11 +33,36 @@ server <- function(input, output) {
     data <- processed_data_simulation_1()
     pr <- colnames(data)[2]
 
+    # ggplot(data, aes(x = PoolSize, y = !!sym(pr))) +
+    #   geom_line() +
+    # { if (max(data[, 2]) >= as.integer(input$pr_definite_pop_options)) geom_hline(yintercept = as.integer(input$pr_definite_pop_options), color = "blue") } +
+    #   geom_point(data = data[which.min(data[, 2]),], color = "red",
+    #              size = 2) +
+    #   geom_label(data = . %>% filter(!!sym(pr) == min(!!sym(pr))),
+    #              aes(label = sprintf('Minimum when Pool Size = %0.2f', PoolSize)), vjust = -2) +
+    #   annotate(geom = 'text', label = sprintf('Population size = %s, p = %s', input$pr_definite_pop_options, pr),
+    #            x = max(data[, 1]), y = max(data[, 2]) + 50, hjust = 1, vjust = +2) +
+    #   labs(title = "Pooled Testing Simulation",
+    #        x = "Pool Size",
+    #        y = "Average Number of Tests")
+
     ggplot(data, aes(x = PoolSize, y = !!sym(pr))) +
-      geom_line() +
+      geom_line(color = "#69b3a2") +
+    { if (max(data[, 2]) >= as.integer(input$pr_definite_pop_options))geom_hline(yintercept = as.integer(input$pr_definite_pop_options), color = "purple", linetype = 'dotted') } +
+    { if (max(data[, 2]) >= as.integer(input$pr_definite_pop_options))
+      annotate("text", x = min(data$PoolSize) + 5, y = as.integer(input$pr_definite_pop_options), label = "Population line", vjust = -0.5) } +
+      geom_point(data = data[which.min(data[, 2]),], color = "red",
+                 size = 2) +
+      geom_label(data = . %>% filter(!!sym(pr) == min(!!sym(pr))),
+                 aes(label = sprintf('Minimum when Pool Size = %0.2f', PoolSize)), vjust = -2) +
+      annotate(geom = 'text', label = sprintf('Population size = %s, p = %s', input$pr_definite_pop_options, pr),
+               x = max(data[, 1]), y = max(data[, 2]) + 50, hjust = 1, vjust = +2) +
       labs(title = "Pooled Testing Simulation",
            x = "Pool Size",
-           y = "Average Number of Tests")
+           y = "Average Number of Tests") +
+      theme(axis.text = element_text(size = 12),
+            axis.title = element_text(size = 14, face = "bold"),
+            plot.title = element_text(size = 22, face = 'bold'))
   })
 
   # Simulation 2 server logic
