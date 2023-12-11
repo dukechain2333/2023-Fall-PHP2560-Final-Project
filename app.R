@@ -85,10 +85,13 @@ server <- function(input, output) {
     data <- processed_data_simulation_2()
 
     ggplot(data, aes(x = PositiveProb, y = OptimizedN)) +
-      geom_line() +
+      geom_line(color = "#69b3a2") +
       labs(title = "Pooled Testing Simulation",
            x = "Probability of Positive",
-           y = "Optimal Pool Size")
+           y = "Optimal Pool Size") +
+      theme(axis.text = element_text(size = 12),
+            axis.title = element_text(size = 14, face = "bold"),
+            plot.title = element_text(size = 22, face = 'bold'))
   })
 
   # Data table server logic
