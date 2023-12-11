@@ -105,6 +105,43 @@ The app is divided into three parts: `Introduction`, `Simulation` and `Conclusio
 - `Conclusion`: This part is the conclusion of the app. It includes the summary of the findings we obtained from the
   simulation.
 
+And this is the structure of the repository:
+
+```text
+2023-Fall-PHP2560-Final-Project
+├── README.md
+├── app.R
+├── data
+│   ├── population_10000_iterations_100.csv
+│   ├── population_10000_iterations_1000.csv
+│   ├── population_10000_iterations_10000.csv
+│   ├── population_1000_iterations_100.csv
+│   ├── population_1000_iterations_1000.csv
+│   ├── population_1000_iterations_10000.csv
+│   ├── population_100_iterations_100.csv
+│   ├── population_100_iterations_1000.csv
+│   ├── population_100_iterations_10000.csv
+│   ├── population_5000_iterations_100.csv
+│   ├── population_5000_iterations_1000.csv
+│   ├── population_5000_iterations_10000.csv
+│   ├── population_500_iterations_100.csv
+│   ├── population_500_iterations_1000.csv
+│   └── population_500_iterations_10000.csv
+├── resources
+│   ├── concept_verification.png
+│   ├── example1.png
+│   ├── example2.png
+│   ├── simulation1_ui.png
+│   └── simulation2_ui.png
+├── simulations
+│   ├── data_generation.R
+│   ├── pooled_testing.R
+│   ├── simulation_poolsize.R
+│   └── simulation_prob_positive.R
+└── www
+    └── index.html
+```
+
 ## How we design the simulation?
 
 The simulation is based on the following **assumptions**:
@@ -276,6 +313,36 @@ will
 lead to great amount of time to run the simulation. Therefore, we pre run all the possible simulations and save the
 results in the `data` folder.
 When user choose a certain parameter, we will read the corresponding data and show the result to the user.
+
+The following code gives an example on how we read the data based on user input and transform the data into the type that we want:
+```r
+  processed_data_simulation_2 <- reactive({
+    population <- as.integer(input$pr_var_pop_options)
+    num_iterations <- as.integer(input$pr_var_iter_options)
+
+
+    file_name <- sprintf("data/population_%d_iterations_%d.csv", population, num_iterations)
+    data_simulation_2 <- read.csv(file_name)[1:30,]
+
+    probs <- seq(0.01, 1, 0.01)
+    min_avg_tests <- numeric(ncol(data_simulation_2) - 1)
+    optimized_n <- numeric(ncol(data_simulation_2) - 1)
+
+    # if the average number of tests is greater than the population size, then the test numbers are set to the population size
+    for (i in 2:ncol(data_simulation_2)) {
+      min_row <- which.min(data_simulation_2[[i]])
+      if (data_simulation_2[min_row, i] > population) {
+        min_avg_tests[i - 1] <- population
+        optimized_n[i - 1] <- 1
+      } else {
+        min_avg_tests[i - 1] <- data_simulation_2[min_row, i]
+        optimized_n[i - 1] <- data_simulation_2[min_row, 1]
+      }
+    }
+
+    data.frame(PositiveProb = probs, MinAvgTests = min_avg_tests, OptimizedN = optimized_n)
+  })
+```
 
 ## Conclusions
 
