@@ -29,6 +29,7 @@ rates,
 and demonstrate the result through a Shiny app. Different plots, tables and user inputs will be available in the app.
 
 ## Pooled Testing
+
 Here we will present this question as a mathematical problem. Assume here we have a population size of $N$. If we are to
 conduct testing on every member of this population, we are going to tests $N$ times, which is very inefficient if the
 number of individuals testing positive is low. Instead, we will use pooled testing to separate the population into
@@ -48,13 +49,13 @@ We present two tables on the right side to demonstrate some results using this f
 Table 1: Expectation of Average Tests Numbers vs Pool Size under Positive Rate of p=0.1
 
 | **$k$** |   2   |   3   |   4   |   5   |   8   |  10   |  30   |   33   |   34   |
-| :-----: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :----: | :----: |
+|:-------:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:------:|:------:|
 | $E(X)$  | 0.690 | 0.604 | 0.594 | 0.610 | 0.695 | 0.751 | 0.991 | 0.9994 | 1.0016 |
 
 Table 2: The optimized pool size k and E(X) under different positive rate p
 
 |        $p$         | **0.14** | **0.10** | **0.08** | **0.06** | **0.04** | **0.02** | **0.01** |
-| :----------------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
+|:------------------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|
 | $\text{Optimal }k$ |    3     |    4     |    4     |    5     |    6     |    8     |    11    |
 |       $E(X)$       |  0.697   |  0.594   |  0.534   |  0.466   |  0.384   |  0.274   |  0.196   |
 
@@ -107,13 +108,13 @@ extract the single simulation process as a function. The function is defined as 
 
 ```r
 simulate_pooled_testing <- function(pool_size, prob_positive, num_iterations, population_size) {
-      #' Simulate pooled testing
-      #'
-      #' @param pool_size The number of samples in each pool
-      #' @param prob_positive The probability of a sample being positive
-      #' @param num_iterations The number of iterations to run the simulation
-      #' @param population_size The size of the population
-      #' @return The average number of tests required to test the population
+              #' Simulate pooled testing
+              #'
+              #' @param pool_size The number of samples in each pool
+              #' @param prob_positive The probability of a sample being positive
+              #' @param num_iterations The number of iterations to run the simulation
+              #' @param population_size The size of the population
+              #' @return The average number of tests required to test the population
 
   total_tests <- c()
 
@@ -185,12 +186,48 @@ choose `Tailwind CSS` as our CSS framework.
 In the `www` folder, we have a `index.html` file, which is the template of the app. In the `app.R` file, we
 use `includeHTML` function to include the template.
 
+We use `card` layout as our main design, which makes user have a clear view of the app. Some examples are shown below:
+
+Example of **Positive Rate as Definite** simulation:
+![simulation 1 ui](resources/simulation1_ui.png)
+
+Example of **Optimized Pool Size over Positive Rate** simulation:
+![simulation 2 ui](resources/simulation2_ui.png)
+
 ### Server
 
 We offered our user server options to see different results under different parameters. However, some of the parameters
 will
 lead to great amount of time to run the simulation. Therefore, we pre run all the possible simulations and save the
 results in the `data` folder.
-When user choose a certain parameter, we will read the corresponding data and show the result to the user. 
+When user choose a certain parameter, we will read the corresponding data and show the result to the user.
 
+## Conclusions
+
+1. As the value of p decreases, the pooled testing method will have a higher optimal group size and will achieve better
+   performance. When we have a fixed p, the effectiveness represented by expectation of tests will drop first and then
+   rise again after reaching the optimal point.
+2. By doing simulation, we derive that the optimal number of pooled size drops to 1 around p value around 0.3, which
+   caters to our expectation that this pooled testing method is only useful when we have a relatively small value of p.
+3. In theory, the value of population size N shall not affect the outcome of our optimal group size. The effectiveness
+   of pooled testing method solely depends on the value of p and group size k. This can be seen from our second plot.
+
+Results Comparison:
+
+- Table 3: The optimized pool size k and E(X) under different positive rate p (Theoretical Results)
+
+|        $p$         | **0.14** | **0.10** | **0.08** | **0.06** | **0.04** | **0.02** | **0.01** |
+|:------------------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|
+| $\text{Optimal }k$ |    3     |    4     |    4     |    5     |    6     |    8     |    11    |
+|       $E(X)$       |  0.697   |  0.594   |  0.534   |  0.466   |  0.384   |  0.274   |  0.196   |
+
+- Table 4: The optimized pool size k and E(X) under different positive rate p (Simulation Results)
+
+|        $p$         | **0.14** | **0.10** | **0.08** | **0.06** | **0.04** | **0.02** | **0.01** |
+|:------------------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|
+| $\text{Optimal }k$ |    3     |    4     |    4     |    5     |    6     |    8     |    11    |
+|       $E(X)$       |  0.697   |  0.594   |  0.534   |  0.466   |  0.384   |  0.274   |  0.196   |
+
+We can see that the simulation results are very close to the theoretical results. This means that our simulation works
+very well.
 
