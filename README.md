@@ -7,6 +7,19 @@ This is the final project for 2023 Fall PHP 2560.
 - William Qian
 - Dingxuan Zhang
 
+## Table of Contents
+- [Project Description](#project-description)
+- [Pooled Testing](#pooled-testing)
+- [Project Structure](#project-structure)
+- [How we design the simulation?](#how-we-design-the-simulation)
+    - [Single Simulation Process](#single-simulation-process)
+    - [Positive Rate as Definite](#positive-rate-as-definite)
+    - [Optimized Pool Size over Positive Rate](#optimized-pool-size-over-positive-rate)
+- [How we design the Shiny App?](#how-we-design-the-shiny-app)
+    - [UI](#ui)
+    - [Server](#server)
+- [Conclusions](#conclusions)
+
 ## Project Description
 
 Pooled testing is a technique used to increase the efficiency of testing for various infectious diseases, including
@@ -108,13 +121,13 @@ extract the single simulation process as a function. The function is defined as 
 
 ```r
 simulate_pooled_testing <- function(pool_size, prob_positive, num_iterations, population_size) {
-              #' Simulate pooled testing
-              #'
-              #' @param pool_size The number of samples in each pool
-              #' @param prob_positive The probability of a sample being positive
-              #' @param num_iterations The number of iterations to run the simulation
-              #' @param population_size The size of the population
-              #' @return The average number of tests required to test the population
+  #' Simulate pooled testing
+  #'
+  #' @param pool_size The number of samples in each pool
+  #' @param prob_positive The probability of a sample being positive
+  #' @param num_iterations The number of iterations to run the simulation
+  #' @param population_size The size of the population
+  #' @return The average number of tests required to test the population
 
   total_tests <- c()
 
@@ -161,6 +174,33 @@ the simulation for `num_iterations` times and
 calculate the average number of tests required to test the population. Then we plot the result in a line chart. From the
 plot, we should find a minimum point, which is the optimized pool size.
 
+```r
+# simulation parameters
+POPULATION_SIZE <- 1000
+PROB_POSITIVE <- 0.02
+MIN_POOL_SIZE <- 2
+MAX_POOL_SIZE <- 40
+NUM_ITERATIONS <- 1000
+
+AvgTests <- c()
+# pool_size iterations
+for (pool_size in MIN_POOL_SIZE:MAX_POOL_SIZE) {
+  avg_tests <- simulate_pooled_testing(pool_size, PROB_POSITIVE, NUM_ITERATIONS, POPULATION_SIZE)
+  AvgTests <- c(AvgTests, avg_tests)
+}
+
+results <- data.frame(PoolSize = MIN_POOL_SIZE:MAX_POOL_SIZE, AvgTests = AvgTests)
+
+print(results)
+
+# plot the results
+ggplot(results, aes(x = PoolSize, y = AvgTests)) +
+  geom_line() +
+  labs(title = "Pooled Testing Simulation",
+       x = "Pool Size",
+       y = "Average Number of Tests")
+```
+
 An example is shown below:
 ![example 1](resources/example1.png)
 
@@ -169,6 +209,41 @@ An example is shown below:
 In the second simulation, we want to see the trend of the optimized pool size under different positive rate.
 To do that, we find the optimized pool size under each of the positive rate, and plot them. We can see a trend from the
 plot.
+
+```r
+# simulation parameters
+POPULATION_SIZE <- 1000
+MIN_POOL_SIZE <- 2
+MAX_POOL_SIZE <- 30
+NUM_ITERATIONS <- 100
+
+results <- data.frame(ProbPositive = c(), PoolSize = c(), MinAvgTests = c())
+
+# prob_positive iterations
+for (prob_positive in seq(0.01, 1, 0.01)) {
+  avg_tests <- c()
+  # pool_size iterations
+  for (pool_size in MIN_POOL_SIZE:MAX_POOL_SIZE) {
+    avg_tests <- c(avg_tests, simulate_pooled_testing(pool_size, prob_positive, NUM_ITERATIONS, POPULATION_SIZE))
+  }
+
+  # if the average number of tests is greater than the population size, then the test numbers are set to the population size
+  if (min(avg_tests) >= POPULATION_SIZE) {
+    results <- rbind(results, data.frame(ProbPositive = prob_positive, PoolSize = 1, MinAvgTests = POPULATION_SIZE))
+  } else {
+    results <- rbind(results, data.frame(ProbPositive = prob_positive, PoolSize = which.min(avg_tests) + 1, MinAvgTests = min(avg_tests)))
+  }
+}
+
+print(results)
+
+# plot the results
+ggplot(results, aes(x = ProbPositive, y = PoolSize)) +
+  geom_line() +
+  labs(title = "Pooled Testing Simulation",
+       x = "Probability of Positive",
+       y = "Optimal Pool Size")
+```
 
 An example is shown below:
 ![example 2](resources/example2.png)
