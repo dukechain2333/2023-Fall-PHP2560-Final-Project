@@ -44,7 +44,7 @@ server <- function(input, output) {
                  aes(label = sprintf('Minimum when Pool Size = %0.2f', PoolSize)), vjust = -2) +
       annotate(geom = 'text', label = sprintf('Population size = %s, p = %s', input$pr_definite_pop_options, pr),
                x = max(data[, 1]), y = max(data[, 2]) + 50, hjust = 1, vjust = +2) +
-      labs(title = "Pooled Testing Simulation",
+      labs(title = "Positive Rate as Definite",
            x = "Pool Size",
            y = "Average Number of Tests") +
       theme(axis.text = element_text(size = 12),
@@ -86,7 +86,7 @@ server <- function(input, output) {
 
     ggplot(data, aes(x = PositiveProb, y = OptimizedN)) +
       geom_line(color = "#69b3a2") +
-      labs(title = "Pooled Testing Simulation",
+      labs(title = "Optimized Pool Size over Positive Rate",
            x = "Probability of Positive",
            y = "Optimal Pool Size") +
       theme(axis.text = element_text(size = 12),
